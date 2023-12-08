@@ -1,0 +1,37 @@
+---
+title: "Econ Final"
+author: "Jorden Anfinson, Caleb Kramer"
+date: "2023-12-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library("dplyr")
+#install.packages("ggplot2")
+library("ggplot2")
+data <- read.csv("populationData.csv")
+```
+
+
+
+```{r code}
+# Create two subsets of data
+legal_states <- filter(data, LEGAL == 1)
+non_legal_states <- filter(data, LEGAL == 0)
+
+# Perform the t-test
+t_test_result <- t.test(legal_states$ChangeComb, non_legal_states$ChangeComb)
+
+# View the results
+t_test_result
+
+ggplot(data, aes(x = factor(LEGAL), y = ChangeComb)) +
+  geom_boxplot() +
+  labs(title = "Population Change by Marijuana Legalization Status",
+       x = "Marijuana Legalized (1 = Yes, 0 = No)",
+       y = "Population Change") +
+  theme_minimal()
+
+```
+
+
