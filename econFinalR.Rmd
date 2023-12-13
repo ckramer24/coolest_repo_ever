@@ -20,16 +20,73 @@ legal_states <- filter(data, LEGAL == 1)
 non_legal_states <- filter(data, LEGAL == 0)
 
 # Perform the t-test
-t_test_result <- t.test(legal_states$ChangeComb, non_legal_states$ChangeComb)
+t_test_result <- t.test(legal_states$ChangeByYear, non_legal_states$ChangeByYear)
 
 # View the results
 t_test_result
 
-ggplot(data, aes(x = factor(LEGAL), y = ChangeComb)) +
+ggplot(data, aes(x = factor(LEGAL), y = ChangeByYear)) +
   geom_boxplot() +
   labs(title = "Population Change by Marijuana Legalization Status",
        x = "Marijuana Legalized (1 = Yes, 0 = No)",
        y = "Population Change") +
+  theme_minimal()
+
+```
+
+
+```{r moreCode}
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+
+# Assuming your data frame is named 'df'
+# Assuming the column names are like "`POPESTIMATE2010`", "`POPESTIMATE2011`", ..., "`POPESTIMATE2022`"
+# and you have a column named 'LEGAL'
+
+# Gather the year columns and reshape the data
+df_long <- data %>%
+  select(STATE, matches("`POPESTIMATE`"), LEGAL) %>%
+  gather(key = "Year", value = "Population", -STATE, -LEGAL) %>%
+  mutate(Year = as.numeric(gsub("`POPESTIMATE`", "", Year)))
+
+# Filter for legal value of 1 and group by year to aggregate the population
+agg_data <- df_long %>%
+  filter(LEGAL == 1) %>%
+  group_by(Year) %>%
+  summarize(Total_Population = sum(Population, na.rm = TRUE))
+
+# Create the line plot
+ggplot(agg_data, aes(x = Year, y = Total_Population)) +
+  geom_line() +
+  labs(title = "Total Population for Legal Values (Legal 1)",
+       x = "Year",
+       y = "Total Population") +
+  theme_minimal()
+
+
+
+```
+
+
+
+```{r more}
+library(tidyr)
+library(ggplot2)
+
+# Assuming your data frame is named 'df'
+df_long <- gather(df, key = "YEAR", value = "population", -state, -legal, -region, -division)
+
+# Convert 'YEAR' to numeric
+df_long$YEAR <- as.numeric(gsub("X", "", df_long$YEAR))
+
+# Create the line plot
+ggplot(df_long, aes(x = YEAR, y = population, color = factor(legal))) +
+  geom_line() +
+  labs(title = "Total Population for Legal Values",
+       x = "Year",
+       y = "Population") +
+  scale_color_manual(values = c("red", "blue"), labels = c("Legal 0", "Legal 1")) +
   theme_minimal()
 
 ```
